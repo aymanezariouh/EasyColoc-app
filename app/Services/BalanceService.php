@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Colocation;
 use App\Models\Expense;
 use App\Models\Membership;
+use App\Models\Settlement;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -15,7 +16,7 @@ class BalanceService
      */
     public function calculateBalances(Colocation $colocation): array
     {
-        $rows = $this->buildBalanceRows($colocation);
+        $rows = $this->buildAdjustedBalanceRows($colocation);
 
         return collect($rows)->map(function (array $row): array {
             return [
@@ -32,64 +33,54 @@ class BalanceService
      */
     public function simplifiedTransfers(Colocation $colocation): array
     {
-        $rows = $this->buildBalanceRows($colocation);
+        $rows = $this->buildAdjustedBalanceRows($colocation);
 
-        $debtors = [];
-        $creditors = [];
-
-        foreach ($rows as $row) {
-            if ($row['balance_cents'] < 0) {
-                $debtors[] = [
-                    'user' => $row['user'],
-                    'remaining_cents' => abs($row['balance_cents']),
-                ];
-            } elseif ($row['balance_cents'] > 0) {
-                $creditors[] = [
-                    'user' => $row['user'],
-                    'remaining_cents' => $row['balance_cents'],
-                ];
-            }
-        }
-
-        $transfers = [];
-        $debtorIndex = 0;
-        $creditorIndex = 0;
-
-        while (isset($debtors[$debtorIndex]) && isset($creditors[$creditorIndex])) {
-            $amountCents = min(
-                $debtors[$debtorIndex]['remaining_cents'],
-                $creditors[$creditorIndex]['remaining_cents']
-            );
-
-            if ($amountCents <= 0) {
-                break;
-            }
-
-            $transfers[] = [
-                'from' => $debtors[$debtorIndex]['user'],
-                'to' => $creditors[$creditorIndex]['user'],
-                'amount' => $this->formatCents($amountCents),
-            ];
-
-            $debtors[$debtorIndex]['remaining_cents'] -= $amountCents;
-            $creditors[$creditorIndex]['remaining_cents'] -= $amountCents;
-
-            if ($debtors[$debtorIndex]['remaining_cents'] === 0) {
-                $debtorIndex++;
-            }
-
-            if ($creditors[$creditorIndex]['remaining_cents'] === 0) {
-                $creditorIndex++;
-            }
-        }
-
-        return $transfers;
+        return $this->buildTransfersFromRows($rows);
     }
 
     /**
      * @return array<int, array{user: User, total_paid_cents: int, share_cents: int, balance_cents: int}>
      */
-    private function buildBalanceRows(Colocation $colocation): array
+    private function buildAdjustedBalanceRows(Colocation $colocation): array
+    {
+        $rows = $this->buildRawBalanceRows($colocation);
+
+        if ($rows === []) {
+            return [];
+        }
+
+        /** @var Collection<int, Settlement> $settlements */
+        $settlements = $colocation->settlements()
+            ->orderBy('paid_at')
+            ->orderBy('id')
+            ->get();
+
+        $rowByUserId = [];
+        foreach ($rows as $index => $row) {
+            $rowByUserId[(int) $row['user']->id] = $index;
+        }
+
+        foreach ($settlements as $settlement) {
+            $fromId = (int) $settlement->from_user_id;
+            $toId = (int) $settlement->to_user_id;
+
+            if (! isset($rowByUserId[$fromId], $rowByUserId[$toId])) {
+                continue;
+            }
+
+            $amountCents = $this->toCents((string) $settlement->amount);
+
+            $rows[$rowByUserId[$fromId]]['balance_cents'] += $amountCents;
+            $rows[$rowByUserId[$toId]]['balance_cents'] -= $amountCents;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @return array<int, array{user: User, total_paid_cents: int, share_cents: int, balance_cents: int}>
+     */
+    private function buildRawBalanceRows(Colocation $colocation): array
     {
         /** @var Collection<int, Membership> $memberships */
         $memberships = $colocation->memberships()
@@ -145,6 +136,64 @@ class BalanceService
         }
 
         return $rows;
+    }
+
+    /**
+     * @param  array<int, array{user: User, total_paid_cents: int, share_cents: int, balance_cents: int}>  $rows
+     * @return array<int, array{from: User, to: User, amount: string}>
+     */
+    private function buildTransfersFromRows(array $rows): array
+    {
+        $debtors = [];
+        $creditors = [];
+
+        foreach ($rows as $row) {
+            if ($row['balance_cents'] < 0) {
+                $debtors[] = [
+                    'user' => $row['user'],
+                    'remaining_cents' => abs($row['balance_cents']),
+                ];
+            } elseif ($row['balance_cents'] > 0) {
+                $creditors[] = [
+                    'user' => $row['user'],
+                    'remaining_cents' => $row['balance_cents'],
+                ];
+            }
+        }
+
+        $transfers = [];
+        $debtorIndex = 0;
+        $creditorIndex = 0;
+
+        while (isset($debtors[$debtorIndex]) && isset($creditors[$creditorIndex])) {
+            $amountCents = min(
+                $debtors[$debtorIndex]['remaining_cents'],
+                $creditors[$creditorIndex]['remaining_cents']
+            );
+
+            if ($amountCents <= 0) {
+                break;
+            }
+
+            $transfers[] = [
+                'from' => $debtors[$debtorIndex]['user'],
+                'to' => $creditors[$creditorIndex]['user'],
+                'amount' => $this->formatCents($amountCents),
+            ];
+
+            $debtors[$debtorIndex]['remaining_cents'] -= $amountCents;
+            $creditors[$creditorIndex]['remaining_cents'] -= $amountCents;
+
+            if ($debtors[$debtorIndex]['remaining_cents'] === 0) {
+                $debtorIndex++;
+            }
+
+            if ($creditors[$creditorIndex]['remaining_cents'] === 0) {
+                $creditorIndex++;
+            }
+        }
+
+        return $transfers;
     }
 
     private function toCents(string $amount): int
