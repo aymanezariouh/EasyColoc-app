@@ -17,12 +17,16 @@ class Invitation extends Model
         'token',
         'status',
         'expires_at',
+        'accepted_at',
+        'refused_at',
     ];
 
     protected function casts(): array
     {
         return [
             'expires_at' => 'datetime',
+            'accepted_at' => 'datetime',
+            'refused_at' => 'datetime',
         ];
     }
 

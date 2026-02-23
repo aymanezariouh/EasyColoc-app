@@ -24,6 +24,8 @@ class InvitationFactory extends Factory
             'token' => Str::random(40),
             'status' => 'pending',
             'expires_at' => now()->addDays(7),
+            'accepted_at' => null,
+            'refused_at' => null,
         ];
     }
 }

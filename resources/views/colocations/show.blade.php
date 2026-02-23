@@ -14,6 +14,10 @@
     @endif
 
     @if ($membership && $membership->role === 'owner')
+        <p>
+            <a href="{{ route('invitations.create', $colocation) }}">Invite by email</a>
+        </p>
+
         <form method="POST" action="{{ route('colocations.cancel', $colocation) }}">
             @csrf
             <button type="submit">Cancel Colocation</button>

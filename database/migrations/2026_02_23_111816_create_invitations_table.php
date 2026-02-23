@@ -19,8 +19,10 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->string('email')->index();
             $table->string('token')->unique();
-            $table->enum('status', ['pending', 'accepted', 'declined', 'expired'])->default('pending');
+            $table->enum('status', ['pending', 'accepted', 'refused', 'expired'])->default('pending');
             $table->timestamp('expires_at')->nullable();
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('refused_at')->nullable();
             $table->timestamps();
 
             $table->index(['colocation_id', 'status']);
