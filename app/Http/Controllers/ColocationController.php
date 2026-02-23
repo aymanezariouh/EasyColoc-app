@@ -71,6 +71,11 @@ class ColocationController extends Controller
 
         $balances = $this->balanceService->calculateBalances($colocation);
         $transfers = $this->balanceService->simplifiedTransfers($colocation);
+        $settlements = $colocation->settlements()
+            ->with(['fromUser', 'toUser'])
+            ->orderByDesc('paid_at')
+            ->orderByDesc('id')
+            ->get();
 
         return view('colocations.show', [
             'colocation' => $colocation,
@@ -81,6 +86,7 @@ class ColocationController extends Controller
             'categories' => $categories,
             'balances' => $balances,
             'transfers' => $transfers,
+            'settlements' => $settlements,
         ]);
     }
 
