@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Colocation;
+use App\Models\Expense;
 use App\Models\User;
 use App\Services\ColocationService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,9 +29,51 @@ class ColocationController extends Controller
             ->whereNull('left_at')
             ->first();
 
+        if (! $membership) {
+            abort(403, 'Only active members can view this colocation.');
+        }
+
+        $selectedMonth = $request->query('month');
+
+        $expensesQuery = Expense::query()
+            ->with(['category', 'payer'])
+            ->where('colocation_id', $colocation->id)
+            ->orderByDesc('expense_date')
+            ->orderByDesc('id');
+
+        if (is_string($selectedMonth) && preg_match('/^\d{4}-\d{2}$/', $selectedMonth) === 1) {
+            $start = Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
+            $end = Carbon::createFromFormat('Y-m', $selectedMonth)->endOfMonth();
+
+            $expensesQuery->whereBetween('expense_date', [
+                $start->toDateString(),
+                $end->toDateString(),
+            ]);
+        } else {
+            $selectedMonth = null;
+        }
+
+        $expenses = $expensesQuery->get();
+
+        $availableMonths = Expense::query()
+            ->where('colocation_id', $colocation->id)
+            ->orderByDesc('expense_date')
+            ->get(['expense_date'])
+            ->map(fn (Expense $expense): string => Carbon::parse($expense->expense_date)->format('Y-m'))
+            ->unique()
+            ->values();
+
+        $categories = $colocation->categories()
+            ->orderBy('name')
+            ->get();
+
         return view('colocations.show', [
             'colocation' => $colocation,
             'membership' => $membership,
+            'expenses' => $expenses,
+            'availableMonths' => $availableMonths,
+            'selectedMonth' => $selectedMonth,
+            'categories' => $categories,
         ]);
     }
 
