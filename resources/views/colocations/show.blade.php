@@ -122,11 +122,44 @@
         @forelse ($transfers as $transfer)
             <li>
                 {{ $transfer['from']->name }} owes {{ $transfer['to']->name }} : {{ $transfer['amount'] }}
+                <form method="POST" action="{{ route('settlements.mark-paid', $colocation) }}">
+                    @csrf
+                    <input type="hidden" name="from_user_id" value="{{ $transfer['from']->id }}">
+                    <input type="hidden" name="to_user_id" value="{{ $transfer['to']->id }}">
+                    <input type="hidden" name="amount" value="{{ $transfer['amount'] }}">
+                    <button type="submit">Mark paid</button>
+                </form>
             </li>
         @empty
             <li>No transfers needed.</li>
         @endforelse
     </ul>
+
+    <h2>Past Settlements</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Paid At</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($settlements as $settlement)
+                <tr>
+                    <td>{{ $settlement->fromUser->name }}</td>
+                    <td>{{ $settlement->toUser->name }}</td>
+                    <td>{{ $settlement->amount }}</td>
+                    <td>{{ $settlement->paid_at?->toDateTimeString() }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4">No settlements yet.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
     @if ($membership && $membership->role !== 'owner')
         <form method="POST" action="{{ route('colocations.leave', $colocation) }}">
