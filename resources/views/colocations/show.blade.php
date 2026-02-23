@@ -91,6 +91,43 @@
         <button type="submit">Add Expense</button>
     </form>
 
+    <h2>Balances</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Total Paid</th>
+                <th>Share</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($balances as $row)
+                <tr>
+                    <td>{{ $row['user']->name }}</td>
+                    <td>{{ $row['total_paid'] }}</td>
+                    <td>{{ $row['share'] }}</td>
+                    <td>{{ $row['balance'] }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4">No active members.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <h2>Who Owes Who</h2>
+    <ul>
+        @forelse ($transfers as $transfer)
+            <li>
+                {{ $transfer['from']->name }} owes {{ $transfer['to']->name }} : {{ $transfer['amount'] }}
+            </li>
+        @empty
+            <li>No transfers needed.</li>
+        @endforelse
+    </ul>
+
     @if ($membership && $membership->role !== 'owner')
         <form method="POST" action="{{ route('colocations.leave', $colocation) }}">
             @csrf
