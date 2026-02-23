@@ -5,6 +5,7 @@ use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettlementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -37,6 +38,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/colocations/{colocation}/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+    Route::post('/colocations/{colocation}/settlements/mark-paid', [SettlementController::class, 'markPaid'])
+        ->name('settlements.mark-paid');
 });
 
 require __DIR__.'/auth.php';
