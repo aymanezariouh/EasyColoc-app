@@ -5,10 +5,12 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 it('applies default moderation and reputation fields on users', function () {
+    $firstUser = User::factory()->create();
     $user = User::factory()->create();
     $stored = DB::table('users')->where('id', $user->id)->first();
 
-    expect($stored)->not->toBeNull()
+    expect($firstUser->is_admin)->toBeTrue()
+        ->and($stored)->not->toBeNull()
         ->and((int) $stored->is_admin)->toBe(0)
         ->and((int) $stored->is_banned)->toBe(0)
         ->and((int) $stored->reputation)->toBe(0);
