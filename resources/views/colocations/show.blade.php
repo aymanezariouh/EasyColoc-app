@@ -91,6 +91,91 @@
         <button type="submit">Add Expense</button>
     </form>
 
+    <h2>Balances</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Total Paid</th>
+                <th>Share</th>
+                <th>Balance</th>
+                @if ($membership && $membership->role === 'owner')
+                    <th>Action</th>
+                @endif
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($balances as $row)
+                <tr>
+                    <td>{{ $row['user']->name }}</td>
+                    <td>{{ $row['total_paid'] }}</td>
+                    <td>{{ $row['share'] }}</td>
+                    <td>{{ $row['balance'] }}</td>
+                    @if ($membership && $membership->role === 'owner')
+                        <td>
+                            @if ($row['user']->id !== $colocation->owner_id)
+                                <form method="POST" action="{{ route('colocations.members.remove', ['colocation' => $colocation, 'user' => $row['user']]) }}">
+                                    @csrf
+                                    <button type="submit">Remove</button>
+                                </form>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    @endif
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="{{ ($membership && $membership->role === 'owner') ? 5 : 4 }}">No active members.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <h2>Who Owes Who</h2>
+    <ul>
+        @forelse ($transfers as $transfer)
+            <li>
+                {{ $transfer['from']->name }} owes {{ $transfer['to']->name }} : {{ $transfer['amount'] }}
+                <form method="POST" action="{{ route('settlements.mark-paid', $colocation) }}">
+                    @csrf
+                    <input type="hidden" name="from_user_id" value="{{ $transfer['from']->id }}">
+                    <input type="hidden" name="to_user_id" value="{{ $transfer['to']->id }}">
+                    <input type="hidden" name="amount" value="{{ $transfer['amount'] }}">
+                    <button type="submit">Mark paid</button>
+                </form>
+            </li>
+        @empty
+            <li>No transfers needed.</li>
+        @endforelse
+    </ul>
+
+    <h2>Past Settlements</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Paid At</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($settlements as $settlement)
+                <tr>
+                    <td>{{ $settlement->fromUser->name }}</td>
+                    <td>{{ $settlement->toUser->name }}</td>
+                    <td>{{ $settlement->amount }}</td>
+                    <td>{{ $settlement->paid_at?->toDateTimeString() }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4">No settlements yet.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
     @if ($membership && $membership->role !== 'owner')
         <form method="POST" action="{{ route('colocations.leave', $colocation) }}">
             @csrf

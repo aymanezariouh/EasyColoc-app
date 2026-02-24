@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Colocation;
 use App\Models\Expense;
 use App\Models\User;
+use App\Services\BalanceService;
 use App\Services\ColocationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +15,8 @@ use Illuminate\View\View;
 class ColocationController extends Controller
 {
     public function __construct(
-        private readonly ColocationService $colocationService
+        private readonly ColocationService $colocationService,
+        private readonly BalanceService $balanceService
     ) {
     }
 
@@ -67,6 +69,14 @@ class ColocationController extends Controller
             ->orderBy('name')
             ->get();
 
+        $balances = $this->balanceService->calculateBalances($colocation);
+        $transfers = $this->balanceService->simplifiedTransfers($colocation);
+        $settlements = $colocation->settlements()
+            ->with(['fromUser', 'toUser'])
+            ->orderByDesc('paid_at')
+            ->orderByDesc('id')
+            ->get();
+
         return view('colocations.show', [
             'colocation' => $colocation,
             'membership' => $membership,
@@ -74,6 +84,9 @@ class ColocationController extends Controller
             'availableMonths' => $availableMonths,
             'selectedMonth' => $selectedMonth,
             'categories' => $categories,
+            'balances' => $balances,
+            'transfers' => $transfers,
+            'settlements' => $settlements,
         ]);
     }
 
@@ -99,5 +112,17 @@ class ColocationController extends Controller
         return redirect()
             ->route('colocations.show', $colocation)
             ->with('status', 'Colocation cancelled.');
+    }
+
+    public function removeMember(Request $request, Colocation $colocation, User $user): RedirectResponse
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $this->colocationService->removeMember($actor, $colocation, $user);
+
+        return redirect()
+            ->route('colocations.show', $colocation)
+            ->with('status', 'Member removed.');
     }
 }
