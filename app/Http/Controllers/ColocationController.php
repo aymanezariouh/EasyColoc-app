@@ -69,6 +69,14 @@ class ColocationController extends Controller
             ->orderBy('name')
             ->get();
 
+        $activeMemberships = $colocation->memberships()
+            ->with('user')
+            ->where('active', true)
+            ->whereNull('left_at')
+            ->orderByRaw("CASE WHEN role = 'owner' THEN 0 ELSE 1 END")
+            ->orderBy('id')
+            ->get();
+
         $balances = $this->balanceService->calculateBalances($colocation);
         $transfers = $this->balanceService->simplifiedTransfers($colocation);
         $settlements = $colocation->settlements()
@@ -84,6 +92,7 @@ class ColocationController extends Controller
             'availableMonths' => $availableMonths,
             'selectedMonth' => $selectedMonth,
             'categories' => $categories,
+            'activeMemberships' => $activeMemberships,
             'balances' => $balances,
             'transfers' => $transfers,
             'settlements' => $settlements,

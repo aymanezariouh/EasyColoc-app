@@ -6,17 +6,43 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettlementController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Models\Invitation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user();
+    $activeMembership = $user?->memberships()
+        ->with('colocation')
+        ->where('active', true)
+        ->whereNull('left_at')
+        ->latest('id')
+        ->first();
 
-Route::middleware('auth')->group(function () {
+    $pendingInvitations = Invitation::query()
+        ->with('colocation')
+        ->whereRaw('LOWER(email) = ?', [mb_strtolower((string) $user?->email)])
+        ->where('status', 'pending')
+        ->where(function ($query): void {
+            $query->whereNull('expires_at')
+                ->orWhere('expires_at', '>', now());
+        })
+        ->latest('id')
+        ->get();
+
+    return view('dashboard', [
+        'activeMembership' => $activeMembership,
+        'pendingInvitations' => $pendingInvitations,
+    ]);
+})->middleware(['auth', 'verified', 'not_banned'])->name('dashboard');
+
+Route::middleware(['auth', 'not_banned'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -43,6 +69,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/colocations/{colocation}/settlements/mark-paid', [SettlementController::class, 'markPaid'])
         ->name('settlements.mark-paid');
+
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+        Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users/{user}/ban', [AdminUserController::class, 'ban'])->name('users.ban');
+        Route::post('/users/{user}/unban', [AdminUserController::class, 'unban'])->name('users.unban');
+    });
 });
 
 require __DIR__.'/auth.php';
