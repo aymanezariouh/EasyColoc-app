@@ -50,6 +50,15 @@ class DemoSeeder extends Seeder
             'reputation' => 0,
         ]);
 
+        User::factory()->create([
+            'name' => 'Invitee Test',
+            'email' => 'invitee.test@easycoloc.test',
+            'password' => 'password',
+            'is_admin' => false,
+            'is_banned' => false,
+            'reputation' => 0,
+        ]);
+
         $colocation = Colocation::create([
             'name' => 'Demo House',
             'owner_id' => $owner->id,
