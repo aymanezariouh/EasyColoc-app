@@ -63,15 +63,29 @@ class BalanceService
         foreach ($settlements as $settlement) {
             $fromId = (int) $settlement->from_user_id;
             $toId = (int) $settlement->to_user_id;
+            $fromActive = isset($rowByUserId[$fromId]);
+            $toActive = isset($rowByUserId[$toId]);
 
-            if (! isset($rowByUserId[$fromId], $rowByUserId[$toId])) {
+            if (! $fromActive && ! $toActive) {
                 continue;
             }
 
             $amountCents = $this->toCents((string) $settlement->amount);
 
-            $rows[$rowByUserId[$fromId]]['balance_cents'] += $amountCents;
-            $rows[$rowByUserId[$toId]]['balance_cents'] -= $amountCents;
+            if ($fromActive && $toActive) {
+                $rows[$rowByUserId[$fromId]]['balance_cents'] += $amountCents;
+                $rows[$rowByUserId[$toId]]['balance_cents'] -= $amountCents;
+                continue;
+            }
+
+            if ($fromActive) {
+                $rows[$rowByUserId[$fromId]]['balance_cents'] -= $amountCents;
+                continue;
+            }
+
+            if ($toActive) {
+                $rows[$rowByUserId[$toId]]['balance_cents'] -= $amountCents;
+            }
         }
 
         return $rows;
