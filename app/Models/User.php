@@ -14,6 +14,15 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected static function booted(): void
+    {
+        static::created(function (self $user): void {
+            if (self::query()->count() === 1 && ! $user->is_admin) {
+                $user->forceFill(['is_admin' => true])->saveQuietly();
+            }
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
