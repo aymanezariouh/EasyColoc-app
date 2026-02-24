@@ -1,5 +1,7 @@
 <x-app-layout>
-    <h1>Admin Users</h1>
+    <x-slot name="header">
+        <h2>Admin Users</h2>
+    </x-slot>
 
     @if (session('status'))
         <p>{{ session('status') }}</p>

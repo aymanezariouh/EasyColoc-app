@@ -1,5 +1,9 @@
 <x-app-layout>
-    <h1>Categories for {{ $colocation->name }}</h1>
+    <x-slot name="header">
+        <h2>Categories</h2>
+    </x-slot>
+
+    <h3>{{ $colocation->name }}</h3>
 
     @if (session('status'))
         <p>{{ session('status') }}</p>
@@ -9,7 +13,7 @@
         <p>{{ $errors->first() }}</p>
     @endif
 
-    <h2>Add Category</h2>
+    <h3>Add Category</h3>
     <form method="POST" action="{{ route('categories.store', $colocation) }}">
         @csrf
         <label for="name">Name</label>
@@ -17,7 +21,7 @@
         <button type="submit">Create</button>
     </form>
 
-    <h2>Existing Categories</h2>
+    <h3>Existing Categories</h3>
     <table border="1" cellpadding="4" cellspacing="0">
         <thead>
             <tr>

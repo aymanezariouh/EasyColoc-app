@@ -8,14 +8,38 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettlementController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Models\Invitation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user();
+    $activeMembership = $user?->memberships()
+        ->with('colocation')
+        ->where('active', true)
+        ->whereNull('left_at')
+        ->latest('id')
+        ->first();
+
+    $pendingInvitations = Invitation::query()
+        ->with('colocation')
+        ->whereRaw('LOWER(email) = ?', [mb_strtolower((string) $user?->email)])
+        ->where('status', 'pending')
+        ->where(function ($query): void {
+            $query->whereNull('expires_at')
+                ->orWhere('expires_at', '>', now());
+        })
+        ->latest('id')
+        ->get();
+
+    return view('dashboard', [
+        'activeMembership' => $activeMembership,
+        'pendingInvitations' => $pendingInvitations,
+    ]);
 })->middleware(['auth', 'verified', 'not_banned'])->name('dashboard');
 
 Route::middleware(['auth', 'not_banned'])->group(function () {

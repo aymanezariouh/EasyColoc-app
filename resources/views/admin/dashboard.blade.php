@@ -1,5 +1,7 @@
 <x-app-layout>
-    <h1>Admin Dashboard</h1>
+    <x-slot name="header">
+        <h2>Admin Dashboard</h2>
+    </x-slot>
 
     <ul>
         <li>Total users: {{ $totalUsers }}</li>
@@ -11,5 +13,9 @@
 
     <p>
         <a href="{{ route('admin.users.index') }}">Manage users</a>
+    </p>
+
+    <p>
+        <a href="{{ route('dashboard') }}">Back to user dashboard</a>
     </p>
 </x-app-layout>

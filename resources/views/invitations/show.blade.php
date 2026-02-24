@@ -1,5 +1,8 @@
 <x-app-layout>
-    <h1>Invitation</h1>
+    <x-slot name="header">
+        <h2>Invitation</h2>
+    </x-slot>
+
     <p>Colocation: {{ $invitation->colocation->name }}</p>
     <p>Invited email: {{ $invitation->email }}</p>
     <p>Status: {{ $invitation->status }}</p>
@@ -22,4 +25,8 @@
         @csrf
         <button type="submit">Refuse</button>
     </form>
+
+    <p>
+        <a href="{{ route('dashboard') }}">Back to dashboard</a>
+    </p>
 </x-app-layout>
