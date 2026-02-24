@@ -57,9 +57,9 @@ class InvitationService
      * @throws InvitationNotFound
      * @throws InvitationNotPending
      */
-    public function acceptInvitation(User $user, string $token): void
+    public function acceptInvitation(User $user, string $token): Invitation
     {
-        DB::transaction(function () use ($user, $token): void {
+        return DB::transaction(function () use ($user, $token): Invitation {
             $invitation = Invitation::where('token', $token)
                 ->lockForUpdate()
                 ->first();
@@ -93,6 +93,8 @@ class InvitationService
                 'accepted_at' => now(),
                 'refused_at' => null,
             ])->save();
+
+            return $invitation->refresh();
         });
     }
 

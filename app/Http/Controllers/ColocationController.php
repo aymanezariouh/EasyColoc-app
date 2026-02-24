@@ -20,6 +20,26 @@ class ColocationController extends Controller
     ) {
     }
 
+    public function create(): View
+    {
+        return view('colocations.create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $colocation = $this->colocationService->createColocation($user, $validated['name']);
+
+        return redirect()
+            ->route('colocations.show', $colocation)
+            ->with('status', 'Colocation created.');
+    }
+
     public function show(Request $request, Colocation $colocation): View
     {
         /** @var User $user */

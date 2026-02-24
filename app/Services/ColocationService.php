@@ -3,16 +3,51 @@
 namespace App\Services;
 
 use App\Models\Colocation;
+use App\Models\Membership;
 use App\Models\Settlement;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ColocationService
 {
     public function __construct(
         private readonly BalanceService $balanceService
     ) {
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function createColocation(User $user, string $name): Colocation
+    {
+        $normalizedName = trim($name);
+
+        if ($normalizedName === '') {
+            throw ValidationException::withMessages([
+                'name' => 'Colocation name is required.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($user, $normalizedName): Colocation {
+            $colocation = Colocation::create([
+                'name' => $normalizedName,
+                'owner_id' => $user->id,
+                'status' => 'active',
+                'cancelled_at' => null,
+            ]);
+
+            Membership::create([
+                'user_id' => $user->id,
+                'colocation_id' => $colocation->id,
+                'role' => 'owner',
+                'active' => true,
+                'left_at' => null,
+            ]);
+
+            return $colocation;
+        });
     }
 
     /**

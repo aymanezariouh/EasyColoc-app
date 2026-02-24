@@ -84,7 +84,7 @@ it('accept works and creates membership', function () {
     $response = $this->actingAs($user)
         ->post(route('invitations.accept', $invitation->token));
 
-    $response->assertRedirect(route('invitations.show', $invitation->token));
+    $response->assertRedirect(route('colocations.show', $colocation));
 
     $invitation->refresh();
 
