@@ -6,6 +6,8 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettlementController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,6 +45,13 @@ Route::middleware(['auth', 'not_banned'])->group(function () {
 
     Route::post('/colocations/{colocation}/settlements/mark-paid', [SettlementController::class, 'markPaid'])
         ->name('settlements.mark-paid');
+
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+        Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users/{user}/ban', [AdminUserController::class, 'ban'])->name('users.ban');
+        Route::post('/users/{user}/unban', [AdminUserController::class, 'unban'])->name('users.unban');
+    });
 });
 
 require __DIR__.'/auth.php';
