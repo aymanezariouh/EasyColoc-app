@@ -81,10 +81,10 @@ class InvitationController extends Controller
         $user = $request->user();
 
         try {
-            $this->invitationService->acceptInvitation($user, $token);
+            $invitation = $this->invitationService->acceptInvitation($user, $token);
 
             return redirect()
-                ->route('invitations.show', $token)
+                ->route('colocations.show', $invitation->colocation_id)
                 ->with('status', 'Invitation accepted.');
         } catch (InvitationNotFound $e) {
             abort(404);
