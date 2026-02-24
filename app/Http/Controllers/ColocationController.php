@@ -113,4 +113,16 @@ class ColocationController extends Controller
             ->route('colocations.show', $colocation)
             ->with('status', 'Colocation cancelled.');
     }
+
+    public function removeMember(Request $request, Colocation $colocation, User $user): RedirectResponse
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $this->colocationService->removeMember($actor, $colocation, $user);
+
+        return redirect()
+            ->route('colocations.show', $colocation)
+            ->with('status', 'Member removed.');
+    }
 }

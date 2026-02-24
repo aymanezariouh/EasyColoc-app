@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/colocations/{colocation}', [ColocationController::class, 'show'])->name('colocations.show');
     Route::post('/colocations/{colocation}/leave', [ColocationController::class, 'leave'])->name('colocations.leave');
     Route::post('/colocations/{colocation}/cancel', [ColocationController::class, 'cancel'])->name('colocations.cancel');
+    Route::post('/colocations/{colocation}/members/{user}/remove', [ColocationController::class, 'removeMember'])
+        ->name('colocations.members.remove');
 
     Route::get('/colocations/{colocation}/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
     Route::post('/colocations/{colocation}/invitations', [InvitationController::class, 'store'])->name('invitations.store');

@@ -99,6 +99,9 @@
                 <th>Total Paid</th>
                 <th>Share</th>
                 <th>Balance</th>
+                @if ($membership && $membership->role === 'owner')
+                    <th>Action</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -108,10 +111,22 @@
                     <td>{{ $row['total_paid'] }}</td>
                     <td>{{ $row['share'] }}</td>
                     <td>{{ $row['balance'] }}</td>
+                    @if ($membership && $membership->role === 'owner')
+                        <td>
+                            @if ($row['user']->id !== $colocation->owner_id)
+                                <form method="POST" action="{{ route('colocations.members.remove', ['colocation' => $colocation, 'user' => $row['user']]) }}">
+                                    @csrf
+                                    <button type="submit">Remove</button>
+                                </form>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    @endif
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4">No active members.</td>
+                    <td colspan="{{ ($membership && $membership->role === 'owner') ? 5 : 4 }}">No active members.</td>
                 </tr>
             @endforelse
         </tbody>
