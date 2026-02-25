@@ -1,5 +1,5 @@
-@props(['padding' => 'p-6'])
+@props(['padding' => 'p-6 sm:p-7'])
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-xl shadow-sm '.$padding]) }}>
+<div {{ $attributes->merge(['class' => "card-premium rounded-2xl {$padding}"]) }}>
     {{ $slot }}
 </div>
