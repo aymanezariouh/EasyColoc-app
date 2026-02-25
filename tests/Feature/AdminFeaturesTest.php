@@ -41,7 +41,7 @@ it('admin can access dashboard and users list', function () {
     $this->actingAs($admin)
         ->get(route('admin.users.index'))
         ->assertOk()
-        ->assertSee('Admin Users');
+        ->assertSee('User Management');
 });
 
 it('admin can ban and unban a user', function () {

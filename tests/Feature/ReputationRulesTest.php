@@ -48,7 +48,7 @@ it('member leaves with debt and loses reputation', function () {
 
     $this->actingAs($member)
         ->post(route('colocations.leave', $colocation))
-        ->assertRedirect(route('colocations.show', $colocation));
+        ->assertRedirect(route('dashboard'));
 
     $member->refresh();
 
@@ -76,7 +76,7 @@ it('member leaves with non negative balance and gains reputation', function () {
 
     $this->actingAs($member)
         ->post(route('colocations.leave', $colocation))
-        ->assertRedirect(route('colocations.show', $colocation));
+        ->assertRedirect(route('dashboard'));
 
     $member->refresh();
 
@@ -115,7 +115,7 @@ it('owner cancel updates all active members reputations from balances', function
 
     $this->actingAs($owner)
         ->post(route('colocations.cancel', $colocation))
-        ->assertRedirect(route('colocations.show', $colocation));
+        ->assertRedirect(route('dashboard'));
 
     $owner->refresh();
     $memberA->refresh();

@@ -37,7 +37,7 @@ it('member can leave colocation', function () {
     $response = $this->actingAs($member)
         ->post(route('colocations.leave', $colocation));
 
-    $response->assertRedirect(route('colocations.show', $colocation));
+    $response->assertRedirect(route('dashboard'));
 });
 
 it('owner cannot leave colocation', function () {
@@ -55,7 +55,7 @@ it('owner can cancel colocation', function () {
     $response = $this->actingAs($owner)
         ->post(route('colocations.cancel', $colocation));
 
-    $response->assertRedirect(route('colocations.show', $colocation));
+    $response->assertRedirect(route('dashboard'));
 });
 
 it('after cancel status is cancelled', function () {
