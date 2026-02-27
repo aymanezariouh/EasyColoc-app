@@ -17,10 +17,5 @@
                 Open invitation
             </a>
         </p>
-
-        <p style="margin:0;font-size:13px;color:#6b7280;word-break:break-all;">
-            If the button does not work, use this link:<br>
-            <a href="{{ $invitationUrl }}" style="color:#4f46e5;">{{ $invitationUrl }}</a>
-        </p>
     </div>
 </div>
