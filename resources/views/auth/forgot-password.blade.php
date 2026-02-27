@@ -1,15 +1,15 @@
 <x-guest-layout>
-    <h1 class="mb-1 text-xl font-semibold text-gray-900">Forgot password</h1>
-    <p class="mb-6 text-sm text-gray-600">Enter your email and we will send you a reset link.</p>
+    <h1 class="text-2xl font-semibold text-slate-900">Forgot password</h1>
+    <p class="mt-1 text-sm text-slate-600">Enter your email and we will send you a reset link.</p>
 
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-auth-session-status class="mt-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
+    <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-4">
         @csrf
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="mt-1 block w-full" type="email" name="email" :value="old('email')" required autofocus />
+            <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 

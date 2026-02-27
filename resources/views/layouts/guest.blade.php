@@ -12,11 +12,16 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-gray-50 font-sans text-gray-900 antialiased">
-        <div class="flex min-h-screen flex-col items-center justify-center px-4">
-            <a href="/" class="mb-6 text-xl font-semibold text-gray-900">{{ config('app.name', 'EasyColoc') }}</a>
+    <body class="bg-slate-100 font-sans text-slate-900 antialiased">
+        <div class="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+            <div class="mb-8 text-center">
+                <a href="{{ route('login') }}" class="inline-flex items-center gap-2 text-slate-900">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-semibold text-white">EC</span>
+                    <span class="text-lg font-semibold tracking-wide">{{ config('app.name', 'EasyColoc') }}</span>
+                </a>
+            </div>
 
-            <div class="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 {{ $slot }}
             </div>
         </div>

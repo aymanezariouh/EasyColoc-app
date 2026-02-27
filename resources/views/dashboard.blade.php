@@ -1,74 +1,82 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p class="mt-1 text-sm text-gray-600">Overview of your active colocation and invitations.</p>
+        <h1 class="ui-title">Dashboard</h1>
+        <p class="ui-subtitle">Overview of your active colocation and pending invitations.</p>
     </x-slot>
 
-    <div class="space-y-6">
-        @if ($activeMembership)
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="space-y-6 lg:col-span-2">
             <x-card>
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Your active colocation</p>
-                        <h2 class="mt-1 text-xl font-semibold text-gray-900">{{ $activeMembership->colocation->name }}</h2>
-                        <p class="mt-1 text-sm text-gray-600">Role: {{ ucfirst($activeMembership->role) }}</p>
-                    </div>
-                    <a href="{{ route('colocations.show', $activeMembership->colocation) }}"
-                        class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-                        Open Colocation
-                    </a>
+                <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                    @if ($activeMembership)
+                        <div>
+                            <p class="text-sm font-medium text-slate-500">Active colocation</p>
+                            <h2 class="mt-1 text-2xl font-semibold text-slate-900">{{ $activeMembership->colocation->name }}</h2>
+                            <p class="mt-2 text-sm text-slate-600">Role: <span class="font-medium">{{ ucfirst($activeMembership->role) }}</span></p>
+                        </div>
+
+                        <a href="{{ route('colocations.show', $activeMembership->colocation) }}" class="btn-primary">
+                            Open Colocation
+                        </a>
+                    @else
+                        <div>
+                            <p class="text-sm font-medium text-slate-500">No active colocation</p>
+                            <h2 class="mt-1 text-2xl font-semibold text-slate-900">Create your first colocation</h2>
+                            <p class="mt-2 text-sm text-slate-600">Create a shared space to start tracking expenses with your roommates.</p>
+                        </div>
+
+                        <a href="{{ route('colocations.create') }}" class="btn-primary">
+                            Create Colocation
+                        </a>
+                    @endif
                 </div>
             </x-card>
-        @else
+
             <x-card>
-                <div class="text-center">
-                    <p class="text-sm text-gray-500">No active colocation yet.</p>
-                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Create your first colocation</h2>
-                    <p class="mt-2 text-sm text-gray-600">Start by creating a shared space and inviting your roommates.</p>
-                    <a href="{{ route('colocations.create') }}"
-                        class="mt-6 inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-                        Create Colocation
-                    </a>
+                <div class="mb-4 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-slate-900">Pending Invitations</h2>
+                    <x-badge color="blue">{{ $pendingInvitations->count() }} pending</x-badge>
                 </div>
+
+                @if ($pendingInvitations->isEmpty())
+                    <p class="text-sm text-slate-600">No pending invitations.</p>
+                @else
+                    <ul class="space-y-2">
+                        @foreach ($pendingInvitations as $invitation)
+                            <li>
+                                <a href="{{ route('invitations.show', $invitation->token) }}" class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 transition hover:bg-slate-50">
+                                    <div>
+                                        <p class="font-medium text-slate-900">{{ $invitation->colocation->name }}</p>
+                                        <p class="text-xs text-slate-500">Invited email: {{ $invitation->email }}</p>
+                                    </div>
+                                    <span class="text-sm text-indigo-600">Open</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </x-card>
-        @endif
+        </div>
 
-        <x-card>
-            <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-gray-900">Pending Invitations</h2>
-                <span class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">{{ $pendingInvitations->count() }} pending</span>
-            </div>
-
-            @if ($pendingInvitations->isEmpty())
-                <p class="text-sm text-gray-600">No pending invitations.</p>
-            @else
-                <ul class="space-y-2">
-                    @foreach ($pendingInvitations as $invitation)
-                        <li>
-                            <a href="{{ route('invitations.show', $invitation->token) }}"
-                                class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50">
-                                <span class="font-medium text-gray-900">{{ $invitation->colocation->name }}</span>
-                                <span class="text-sm text-gray-600">Review</span>
-                            </a>
-                        </li>
-                    @endforeach
+        <div class="space-y-6">
+            <x-card>
+                <h2 class="text-lg font-semibold text-slate-900">Quick Tips</h2>
+                <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                    <li>- Keep categories simple and clear.</li>
+                    <li>- Log expenses as soon as they happen.</li>
+                    <li>- Use "Mark Paid" to keep balances accurate.</li>
                 </ul>
-            @endif
-        </x-card>
+            </x-card>
 
-        @if (auth()->user()?->is_admin)
-            <x-card>
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-900">Admin</h2>
-                        <p class="text-sm text-gray-600">Access platform stats and user moderation tools.</p>
-                    </div>
-                    <a href="{{ route('admin.dashboard') }}"
-                        class="inline-flex items-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300">
+            @if (auth()->user()?->is_admin)
+                <x-card>
+                    <h2 class="text-lg font-semibold text-slate-900">Admin Access</h2>
+                    <p class="mt-2 text-sm text-slate-600">Manage users, bans, and platform metrics.</p>
+                    <a href="{{ route('admin.dashboard') }}" class="btn-secondary mt-4 w-full">
                         Open Admin Dashboard
                     </a>
-                </div>
-            </x-card>
-        @endif
+                </x-card>
+            @endif
+        </div>
     </div>
 </x-app-layout>

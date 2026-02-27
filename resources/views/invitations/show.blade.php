@@ -1,17 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="text-2xl font-semibold text-gray-900">Invitation</h1>
-        <p class="mt-1 text-sm text-gray-600">Review invitation details and choose an action.</p>
+        <h1 class="ui-title">Invitation</h1>
+        <p class="ui-subtitle">Review details and choose your action.</p>
     </x-slot>
 
-    <div class="mx-auto max-w-xl">
+    <div class="mx-auto max-w-2xl">
         <x-card>
-            <div class="space-y-3">
-                <p class="text-sm text-gray-500">Colocation</p>
-                <h2 class="text-xl font-semibold text-gray-900">{{ $invitation->colocation->name }}</h2>
-                <p class="text-sm text-gray-700">Invited email: {{ $invitation->email }}</p>
-                <p class="text-sm text-gray-700">Status: {{ ucfirst($invitation->status) }}</p>
-                <p class="text-sm text-gray-700">Expires at: {{ $invitation->expires_at ? $invitation->expires_at->toDateTimeString() : 'No expiry' }}</p>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p class="text-sm text-slate-500">Colocation</p>
+                <h2 class="mt-1 text-xl font-semibold text-slate-900">{{ $invitation->colocation->name }}</h2>
+                <p class="mt-2 text-sm text-slate-700">Invited email: {{ $invitation->email }}</p>
+                <p class="mt-1 text-sm text-slate-700">Status: {{ ucfirst($invitation->status) }}</p>
+                <p class="mt-1 text-sm text-slate-700">Expires at: {{ $invitation->expires_at ? $invitation->expires_at->toDateTimeString() : 'No expiry' }}</p>
             </div>
 
             @if ($errors->has('invitation'))
@@ -24,22 +24,16 @@
                 @if ($invitation->status === 'pending')
                     <form method="POST" action="{{ route('invitations.accept', $invitation->token) }}">
                         @csrf
-                        <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-                            Accept
-                        </button>
+                        <button type="submit" class="btn-primary">Accept</button>
                     </form>
 
                     <form method="POST" action="{{ route('invitations.refuse', $invitation->token) }}">
                         @csrf
-                        <button type="submit" class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300">
-                            Refuse
-                        </button>
+                        <button type="submit" class="btn-secondary">Refuse</button>
                     </form>
                 @endif
 
-                <a href="{{ route('dashboard') }}" class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300">
-                    Back
-                </a>
+                <a href="{{ route('dashboard') }}" class="btn-ghost">Back</a>
             </div>
         </x-card>
     </div>
