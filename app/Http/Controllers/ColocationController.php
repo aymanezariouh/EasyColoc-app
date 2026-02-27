@@ -127,7 +127,7 @@ class ColocationController extends Controller
         $this->colocationService->leaveColocation($user, $colocation);
 
         return redirect()
-            ->route('colocations.show', $colocation)
+            ->route('dashboard')
             ->with('status', 'You left the colocation.');
     }
 
@@ -139,7 +139,7 @@ class ColocationController extends Controller
         $this->colocationService->cancelColocation($user, $colocation);
 
         return redirect()
-            ->route('colocations.show', $colocation)
+            ->route('dashboard')
             ->with('status', 'Colocation cancelled.');
     }
 

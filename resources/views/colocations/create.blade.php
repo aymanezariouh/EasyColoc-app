@@ -1,42 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-indigo-600 transition mb-2">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-                Dashboard
-            </a>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Create Colocation</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Start a new shared space.</p>
-        </div>
+        <h1 class="ui-title">Create Colocation</h1>
+        <p class="ui-subtitle">Start a new shared space for your group.</p>
     </x-slot>
 
-    <div class="max-w-lg">
-        <x-card class="space-y-6">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 flex-shrink-0">
-                    <svg class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </div>
-                <h2 class="text-lg font-bold text-gray-900">New Colocation</h2>
-            </div>
-
+    <div class="mx-auto max-w-2xl">
+        <x-card>
             <form method="POST" action="{{ route('colocations.store') }}" class="space-y-5">
                 @csrf
-                <div class="space-y-1.5">
-                    <label for="name" class="block text-sm font-semibold text-gray-700">Colocation Name</label>
-                    <input id="name" name="name" type="text" value="{{ old('name') }}" required placeholder="e.g. Apartment 42"
-                           class="w-full rounded-xl border-gray-200 bg-gray-50/50 text-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 focus:bg-white transition">
+
+                <div>
+                    <label for="name" class="field-label">Colocation Name</label>
+                    <input id="name" name="name" type="text" value="{{ old('name') }}" required class="field-input" placeholder="e.g. Casa Verde">
                 </div>
 
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm shadow-indigo-200 hover:shadow-md transition-all duration-200">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                        Create
-                    </button>
-                    <a href="{{ route('dashboard') }}"
-                       class="inline-flex items-center bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200">
-                        Cancel
-                    </a>
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="btn-primary">Create</button>
+                    <a href="{{ route('dashboard') }}" class="btn-secondary">Cancel</a>
                 </div>
             </form>
         </x-card>
