@@ -1,44 +1,52 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="text-2xl font-semibold text-gray-900">User Management</h1>
-        <p class="mt-1 text-sm text-gray-600">Ban or unban users.</p>
+        <h1 class="ui-title">User Management</h1>
+        <p class="ui-subtitle">Moderate user access and account status.</p>
     </x-slot>
 
     <x-card>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <div class="ui-table-wrap">
+            <table class="ui-table">
                 <thead>
-                    <tr class="text-left text-gray-500">
-                        <th class="px-3 py-2">Name</th>
-                        <th class="px-3 py-2">Email</th>
-                        <th class="px-3 py-2">Admin</th>
-                        <th class="px-3 py-2">Banned</th>
-                        <th class="px-3 py-2">Reputation</th>
-                        <th class="px-3 py-2">Action</th>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Admin</th>
+                        <th>Banned</th>
+                        <th>Reputation</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody>
                     @foreach ($users as $user)
                         <tr>
-                            <td class="px-3 py-2 font-medium text-gray-900">{{ $user->name }}</td>
-                            <td class="px-3 py-2 text-gray-700">{{ $user->email }}</td>
-                            <td class="px-3 py-2">{{ $user->is_admin ? 'Yes' : 'No' }}</td>
-                            <td class="px-3 py-2">{{ $user->is_banned ? 'Yes' : 'No' }}</td>
-                            <td class="px-3 py-2">{{ $user->reputation }}</td>
-                            <td class="px-3 py-2">
+                            <td class="font-medium text-slate-900">{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>
+                                @if ($user->is_admin)
+                                    <x-badge color="indigo">Yes</x-badge>
+                                @else
+                                    <x-badge color="gray">No</x-badge>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($user->is_banned)
+                                    <x-badge color="red">Yes</x-badge>
+                                @else
+                                    <x-badge color="green">No</x-badge>
+                                @endif
+                            </td>
+                            <td>{{ $user->reputation }}</td>
+                            <td>
                                 @if ($user->is_banned)
                                     <form method="POST" action="{{ route('admin.users.unban', $user) }}">
                                         @csrf
-                                        <button type="submit" class="rounded-lg bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-300">
-                                            Unban
-                                        </button>
+                                        <button type="submit" class="btn-secondary btn-sm">Unban</button>
                                     </form>
                                 @else
                                     <form method="POST" action="{{ route('admin.users.ban', $user) }}">
                                         @csrf
-                                        <button type="submit" class="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
-                                            Ban
-                                        </button>
+                                        <button type="submit" class="btn-danger btn-sm">Ban</button>
                                     </form>
                                 @endif
                             </td>

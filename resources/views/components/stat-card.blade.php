@@ -1,6 +1,6 @@
 @props(['label', 'value'])
 
-<div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-    <p class="text-sm text-gray-500">{{ $label }}</p>
-    <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $value }}</p>
+<div class="ui-card p-5">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $label }}</p>
+    <p class="mt-2 text-2xl font-semibold text-slate-900">{{ $value }}</p>
 </div>

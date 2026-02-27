@@ -12,22 +12,22 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-gray-50 font-sans text-gray-900 antialiased">
+    <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
         <div class="min-h-screen">
             @include('layouts.navigation')
 
             @isset($header)
-                <header class="border-b border-gray-200 bg-white">
-                    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+                <header class="border-b border-slate-200 bg-white">
+                    <div class="ui-container py-6">
                         {{ $header }}
                     </div>
                 </header>
             @endisset
 
             <main class="py-8">
-                <div class="mx-auto max-w-6xl space-y-4 px-4 sm:px-6 lg:px-8">
+                <div class="ui-container space-y-4">
                     @if (session('status'))
-                        <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                             {{ session('status') }}
                         </div>
                     @endif
